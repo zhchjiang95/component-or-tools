@@ -47,7 +47,7 @@ export const mapTree = (trees: TreeDataType[], key: any, value: unknown, flag?: 
   });
 };
 
-export const TreeTransfer = ({ dataSource, targetKeys, ...restProps }: any) => {
+export const TreeTransfer = ({ chChecked, dataSource, targetKeys, ...restProps }: any) => {
   const transferDataSource: TreeDataType[] = [];
   function flatten(list: TreeDataType[] = []) {
     list.forEach((item) => {
@@ -102,12 +102,15 @@ export const TreeTransfer = ({ dataSource, targetKeys, ...restProps }: any) => {
               checkedKeys={checkedKeys}
               treeData={generateTree(dataSource, targetKeys)}
               onCheck={(keys, { node: { key }, checked }) => {
+                chChecked(checked);
                 onItemSelect(key as string, !isChecked(checkedKeys, key as string));
                 toggleDisabled(key as string, checked);
               }}
               onSelect={(keys, { node: { key } }) => {
+                const che = !selectedKeys.includes(key as string);
+                chChecked(che);
                 onItemSelect(key as string, !isChecked(checkedKeys, key as string));
-                toggleDisabled(key as string, !selectedKeys.includes(key as string));
+                toggleDisabled(key as string, che);
               }}
             />
           );

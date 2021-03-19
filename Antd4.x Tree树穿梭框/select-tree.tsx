@@ -28,16 +28,29 @@ interface PropsType {
   };
 }
 
+const checked = {
+  value: false,
+};
+
 const SelectTree = ({ onClose, onOk, treeData, selectedData, info }: PropsType) => {
-  let bkLeftKeys: string[] = [];
+  const [bkLeftKeys, setBkLeftKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>(selectedData.map((v) => v.key));
   const [shuttleData, setShuttleData] = useState<TreeDataType[]>([]);
 
   useEffect(() => {
     // 禁用已选择和子级
-    mapTree(filterTree(treeData, selectedKeys), 'disabled', true);
+    const checkedItem = filterTree(treeData, selectedKeys).map(v => {
+      const p = v
+      p.selected = true
+      return p
+    });
+    mapTree(checkedItem, 'disabled', true);
     setShuttleData(treeData);
   }, []);
+
+  const chChecked = (val: boolean) => {
+    checked.value = val;
+  };
 
   // 搜索树
   const onTreeSearch = (dir: any, value: any) => {
@@ -81,13 +94,30 @@ const SelectTree = ({ onClose, onOk, treeData, selectedData, info }: PropsType) 
         dataSource={shuttleData}
         // selectedKeys={bkLeftKeys}
         targetKeys={selectedKeys}
+        chChecked={chChecked}
         onChange={(keys: string[], dir: string, moveKey: string[]) => {
           // 将右侧已选车辆且为禁用状态的删除（已选择父级）
           const targetKeysItem = filterTree(shuttleData, keys);
-          setSelectedKeys(targetKeysItem.filter((v) => !v.disabled).map((v) => v.key));
+          setSelectedKeys(
+            targetKeysItem
+              .filter((v) => !v.disabled)
+              .map((v) => {
+                // 将子级已选的selected重置
+                v.children?.forEach((n) => {
+                  const p = n;
+                  if (p.selected) p.selected = false;
+                });
+                return v.key;
+              }),
+          );
           if (dir === 'left') {
             // 删除选择后，有子级将子级启用
             const nowItem = filterTree(shuttleData, moveKey);
+            // 将删除项的selected设置为false
+            nowItem.forEach((v) => {
+              const p = v;
+              p.selected = false;
+            });
             mapTree(nowItem, 'disabled', false);
           }
         }}
@@ -95,17 +125,17 @@ const SelectTree = ({ onClose, onOk, treeData, selectedData, info }: PropsType) 
           // if (_.isEmpty(leftKeys)) return;
           // 交集，当前变化的项
           const xorArr = _.xor(leftKeys, bkLeftKeys);
-          bkLeftKeys = leftKeys.slice();
+          setBkLeftKeys(leftKeys.slice());
           xorArr.forEach((v) => {
             const nowItem = filterTree(shuttleData, [v]);
             if (leftKeys.includes(v)) {
               // 在左侧选中数组中
-              // 将选中的子级加selected
+              // 将选中的加selected
               nowItem[0].selected = true;
-            } else if (!selectedKeys.includes(v)) {
-              // 否则，并且不在右侧选中数组中
-              // 将取消的子级去selected
+            } else if (!checked.value) {
+              // 将左侧取消的去selected
               nowItem[0].selected = false;
+              checked.value = true;
             }
           });
         }}

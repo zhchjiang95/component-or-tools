@@ -87,6 +87,7 @@ export const TreeTransfer = ({ chChecked, dataSource, targetKeys, ...restProps }
       targetKeys={targetKeys}
       dataSource={transferDataSource}
       className="policy-transfer"
+      listStyle={{ width: '50%' }}
       render={(item) => item.title}
       showSelectAll={false}
     >
@@ -95,6 +96,7 @@ export const TreeTransfer = ({ chChecked, dataSource, targetKeys, ...restProps }
           const checkedKeys = [...selectedKeys, ...targetKeys];
           return (
             <Tree
+              height={300}
               blockNode
               checkable
               checkStrictly

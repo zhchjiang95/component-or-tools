@@ -13,9 +13,10 @@ interface PropsType extends Swiper {
 /**
  * 翻页轮播组件，适用于大屏可视化数据定时向上滚动等
  * 若出现滚动异常，可尝试设置 height
+ * More: https://github.com/zhchjiang95/component-or-tools
  * @param children SwiperSlide[] 组件，参见：https://swiperjs.com/react
  * @param restProps 更多参见：https://www.swiper.com.cn/api
- * @returns https://github.com/zhchjiang95/component-or-tools
+ * @returns React.FunctionComponent
  */
 const DataSwiper: FC<PropsType> = ({ children, autoplay, ...restProps }) => {
   // Swiper 实例
